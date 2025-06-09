@@ -1,5 +1,9 @@
 name: CI
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, master]
@@ -13,20 +17,21 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Install system packages (Node 20, wkhtmltopdf)
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install system packages (wkhtmltopdf)
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential libmysqlclient-dev mariadb-server-10.6 redis-server \
-            wkhtmltopdf=0.12.5* curl
-          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          sudo npm install -g yarn@1.22
+          sudo apt-get install -y wkhtmltopdf=0.12.5* curl
 
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
@@ -51,10 +56,12 @@ jobs:
           SKIP: pytest
         run: pre-commit run --all-files --show-diff-on-failure
 
+
   # -----------------------------------------------------------------------
   # TESTS: полное развёртывание Frappe‑bench + запуск pytest
   # -----------------------------------------------------------------------
   tests:
+    needs: lint
     runs-on: ubuntu-22.04
     env:
       CI: "true"                # снимает root‑блокировку bench
@@ -83,15 +90,19 @@ jobs:
             ${{ runner.os }}-pip-bench-
 
       # --- System dependencies -------------------------------------------
-      - name: Install system packages (MariaDB, Redis, Node 20, wkhtmltopdf)
+      - name: Install system packages (MariaDB, Redis, wkhtmltopdf)
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-dev libffi-dev libmysqlclient-dev \
                mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
-          # Node 20 + yarn 1.x for Frappe v15
-          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          sudo npm install -g yarn@1.22
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+
+      - run: npm install -g yarn@1.22
 
       # --- Python dependencies -------------------------------------------
       - name: Install Python deps (requirements + bench CLI)
@@ -121,7 +132,7 @@ jobs:
       # --- Artifacts ------------------------------------------------------
       - name: Upload junit‑report
         if: failure() || success()
-        uses: actions/upload-artifact@v4  # P0‑1a
+        uses: actions/upload-artifact@v4
         with:
           name: junit-report
-          path: frappe-bench/.pytest_cache/v
+          path: frappe-bench/reports/pytest-results.xml
