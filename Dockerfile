@@ -4,6 +4,7 @@ RUN apt-get update \
     && apt-get install -y git mariadb-client redis-server nodejs npm curl cron \
     && npm install -g yarn@1.22.19 \
     && useradd -ms /bin/bash frappe
+RUN pip install pytest pytest-cov
 
 COPY bootstrap.sh /bootstrap.sh
 COPY ferum_customs /app/ferum_customs

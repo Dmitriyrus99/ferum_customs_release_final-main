@@ -93,9 +93,10 @@ jobs:
 
       - name: Run ${{ matrix.type }} tests inside container
         run: >
-          docker compose exec -T frappe
+          docker compose exec -T frappe sh -c "
+          mkdir -p /workspace/reports &&
           pytest /workspace/ferum_customs/ferum_customs/tests/${{ matrix.type }}
-          --junitxml=/workspace/reports/${{ matrix.type }}-results.xml
+          --junitxml=/workspace/reports/${{ matrix.type }}-results.xml"
 
       - name: Upload ${{ matrix.type }} test report
         if: always()
