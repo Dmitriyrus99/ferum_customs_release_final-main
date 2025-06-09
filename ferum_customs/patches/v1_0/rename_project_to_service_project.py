@@ -20,12 +20,12 @@ def execute():
             print("Successfully renamed 'Project' to 'Service Project'.")
         except Exception as e:
             frappe.log_error(
-                f"Error renaming DocType Project to ServiceProject: {e}", "Patch Error"
+                f"Error renaming DocType Project to Service Project: {e}", "Patch Error"
             )
             print(f"Error during rename: {e}")
         # frappe.db.commit() # Usually not needed as patches run in their own transaction.
         # Keep if there's a specific reason for intermediate commit in a more complex patch.
     elif not frappe.db.exists("DocType", "Project"):
         print("DocType 'Project' does not exist. Skipping rename.")
-    elif frappe.db.exists("DocType", "ServiceProject"):
-        print("DocType 'ServiceProject' already exists. Skipping rename.")
+    elif frappe.db.exists("DocType", "Service Project"):
+        print("DocType 'Service Project' already exists. Skipping rename.")
