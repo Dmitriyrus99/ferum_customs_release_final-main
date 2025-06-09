@@ -23,7 +23,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             build-essential libmysqlclient-dev mariadb-server-10.6 redis-server \
-            wkhtmltopdf=0.12.5* curl
+            wkhtmltopdf curl
           curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
           sudo apt-get install -y nodejs
           sudo npm install -g yarn@1.22
