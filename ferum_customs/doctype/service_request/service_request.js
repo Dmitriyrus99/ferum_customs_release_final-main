@@ -4,16 +4,15 @@
  * Содержит общую логику фильтрации инженеров и специфичные действия формы.
  */
 
+/// <reference path="../../../typings/frappe.d.ts" />
+
 frappe.ui.form.on('Service Request', {
-    onload: function(frm) {
-        // console.log("service_request DocType-specific JS: Form loaded:", frm.docname);
-    },
 
     /**
      * Обработчик изменения поля 'service_object_link'.
      * Запрашивает инженеров и устанавливает фильтр для 'assigned_engineer'.
      */
-    service_object_link: function(frm) {
+    service_object_link(frm) {
         const engineer_field = 'assigned_engineer';
 
         if (!frm.doc.service_object_link) {
@@ -28,7 +27,7 @@ frappe.ui.form.on('Service Request', {
         frappe.call({
             method: 'ferum_customs.custom_logic.service_request_hooks.get_engineers_for_object',
             args: { service_object_name: frm.doc.service_object_link },
-            callback: function(r) {
+            callback(r) {
                 frm.dashboard.clear_indicator();
                 if (r.message && Array.isArray(r.message)) {
                     if (r.message.length > 0) {
@@ -55,7 +54,7 @@ frappe.ui.form.on('Service Request', {
                 }
                 frm.refresh_field(engineer_field);
             },
-            error: function(r) {
+            error(r) {
                 frm.dashboard.clear_indicator();
                 console.error('Ошибка при получении списка инженеров:', r);
                 frm.set_query(engineer_field, null);
@@ -66,7 +65,7 @@ frappe.ui.form.on('Service Request', {
         });
     },
 
-    refresh: function(frm) {
+    refresh(frm) {
         // Общая логика: установка add_fetch и фильтра инженеров
         frm.add_fetch('service_object_link', 'linked_service_project', 'project');
 
@@ -79,13 +78,13 @@ frappe.ui.form.on('Service Request', {
 
         // Специфичные действия формы service_request
         if (frm.doc.docstatus === 0 && frm.doc.status === 'Открыта') {
-            frm.add_custom_button(__('Назначить инженера (SR Specific)'), function() {
+            frm.add_custom_button(__('Назначить инженера (SR Specific)'), () => {
                 frappe.msgprint(__('Логика назначения инженера, специфичная для формы service_request...'));
             }, __('Действия'));
         }
 
         if (frm.doc.docstatus === 1 && frm.doc.status === 'Выполнена') {
-            frappe.db && frm.add_custom_button(__('Создать Акт выполненных работ'), function() {
+            frappe.db && frm.add_custom_button(__('Создать Акт выполненных работ'), () => {
                 frappe.new_doc('Service Report', {
                     service_request: frm.doc.name,
                     customer: frm.doc.custom_customer
@@ -94,7 +93,7 @@ frappe.ui.form.on('Service Request', {
         }
     },
 
-    validate: function(frm) {
+    validate(frm) {
         // console.log("service_request DocType-specific JS: Client-side validation...");
         return true;
     }
