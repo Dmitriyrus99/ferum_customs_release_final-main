@@ -1,138 +1,141 @@
-name: CI
+# .github/workflows/ci.yml
 
+# Имя рабочего процесса, которое будет отображаться в GitHub Actions
+name: CI/CD Pipeline
+
+# Динамическое имя для каждого конкретного запуска
+run-name: >-
+  🛠️ ${{ github.actor }} запустил CI для ветки ${{ github.ref_name }}
+
+# --- ТРИГГЕРЫ ЗАПУСКА ---
+on:
+  # При push в основные ветки
+  push:
+    branches: [main, develop]
+  # При создании Pull Request в основные ветки
+  pull_request:
+    branches: [main, develop]
+  # Для ручного запуска из интерфейса GitHub
+  workflow_dispatch:
+  # Еженедельный запуск для проверки стабильности
+  schedule:
+    - cron: '0 4 * * 1' # Каждый понедельник в 04:00 UTC
+
+# --- УПРАВЛЕНИЕ ПАРАЛЛЕЛЬНЫМИ ЗАПУСКАМИ ---
+# Отменяет предыдущие запуски для того же PR или ветки при новом коммите
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-  workflow_dispatch:
+# --- РАЗРЕШЕНИЯ ---
+# Устанавливаем минимально необходимые права для повышения безопасности
+permissions:
+  contents: read
 
 jobs:
-  # -----------------------------------------------------------------------
-  # LINT: быстрые проверки форматирования & стат. анализа без развёртывания
-  # -----------------------------------------------------------------------
+  # =======================================================
+  #  ЗАДАНИЕ 1: ПРОВЕРКА КАЧЕСТВА КОДА (ЛИНТЕРЫ)
+  # =======================================================
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 10 # Ограничение времени выполнения
+
     steps:
+      # Шаг 1: Клонирование кода из репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install system packages (wkhtmltopdf)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wkhtmltopdf=0.12.5* curl
-
-      - name: Setup Python 3.11
+      # Шаг 2: Настройка окружения Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: requirements-dev.txt
+          python-version: '3.10'
 
-      - name: Install Python dependencies
-        run: pip install -r requirements-dev.txt
-
+      # Шаг 3: Кэширование хуков pre-commit для ускорения последующих запусков
       - name: Cache pre-commit hooks
         uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-precommit-
 
+      # Шаг 4: Установка зависимостей для проверок
+      - name: Install dependencies
+        run: pip install --upgrade pre-commit
+
+      # Шаг 5: Запуск хуков pre-commit, пропуская pytest
+      # Переменная окружения SKIP - это стандартный способ pre-commit для пропуска хуков.
       - name: Run pre-commit hooks (skip pytest)
         env:
           SKIP: pytest
         run: pre-commit run --all-files --show-diff-on-failure
 
-
-  # -----------------------------------------------------------------------
-  # TESTS: полное развёртывание Frappe‑bench + запуск pytest
-  # -----------------------------------------------------------------------
+  # =======================================================
+  #  ЗАДАНИЕ 2: ИНТЕГРАЦИОННОЕ ТЕСТИРОВАНИЕ
+  # =======================================================
   tests:
+    # Запускается только после успешного завершения 'lint'
     needs: lint
-    runs-on: ubuntu-22.04
-    env:
-      CI: "true"                # снимает root‑блокировку bench
-      MYSQL_ROOT_PASSWORD: "root"
-      ADMIN_PASSWORD:  "admin"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      # --- Checkout -------------------------------------------------------
-      - uses: actions/checkout@v4
+      # Шаг 1: Клонирование кода
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # --- Python toolchain ----------------------------------------------
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v5  # P0‑1c
-        with:
-          python-version: "3.11"
+      # Шаг 2: Сборка и запуск Docker-стека в фоновом режиме
+      - name: Build and start Frappe Stack
+        run: docker compose -f docker-compose.yml up -d --build
 
-      # --- Cache pip & bench ---------------------------------------------
-      - name: Cache pip & bench             # P0‑1b
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.bench
-          key: ${{ runner.os }}-pip-bench-${{ hashFiles('**/requirements-dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-bench-
-
-      # --- System dependencies -------------------------------------------
-      - name: Install system packages (MariaDB, Redis, wkhtmltopdf)
+      # Шаг 3: Ожидание полной готовности сайта Frappe
+      # Этот цикл опрашивает API сайта, пока не получит ответ 200 OK.
+      - name: Wait for Frappe site to be ready
         run: |
-          sudo apt-get update
-          sudo apt-get install -y git build-essential python3-dev libffi-dev libmysqlclient-dev \
-               mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
+          echo "Waiting for Frappe site to become available..."
+          timeout=300 # Таймаут 5 минут
+          start_time=$(date +%s)
+          # Имя хоста и порт должны соответствовать настройкам в docker-compose.yml
+          SITE_HOST="http://localhost:8000"
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'yarn'
+          while true; do
+            current_time=$(date +%s)
+            elapsed=$((current_time - start_time))
+            if [ $elapsed -ge $timeout ]; then
+              echo "::error::Timeout: Site did not become ready in ${timeout} seconds."
+              docker compose logs frappe # Выводим логи для отладки
+              exit 1
+            fi
+            
+            # Отправляем запрос к стандартному эндпоинту Frappe для проверки доступности
+            status_code=$(curl -s -o /dev/null -w "%{http_code}" $SITE_HOST/api/method/ping || echo "000")
+            
+            if [ "$status_code" -eq 200 ]; then
+              echo "Site is ready! Status code: $status_code."
+              break
+            else
+              echo "Site not ready yet (status: $status_code). Retrying in 15 seconds..."
+              sleep 15
+            fi
+          done
 
-      - run: npm install -g yarn@1.22
+      # Шаг 4: Запуск тестов pytest внутри работающего контейнера
+      # Имя сервиса 'frappe' и имя сайта 'your-site-name' взяты из docker-compose.yml
+      - name: Run tests inside container
+        run: >
+          docker compose exec -T frappe
+          bench --site your-site-name run-tests --app ferum_customs
 
-      # --- Python dependencies -------------------------------------------
-      - name: Install Python deps (requirements + bench CLI)
-        run: |
-          pip install --no-cache-dir -r requirements-dev.txt  # содержит frappe + erpnext
-          pip install --no-cache-dir frappe-bench
+      # Шаг 5 (опционально): Загрузка артефактов (отчетов о тестировании)
+      # Если ваши тесты генерируют отчеты (например, в формате JUnit),
+      # вы можете раскомментировать этот шаг для их сохранения.
+      # - name: Upload test reports
+      #   if: always() # Выполняется всегда, даже если тесты упали
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: pytest-reports
+      #     path: ./reports # Укажите путь к вашим отчетам
 
-      # --- Bench init & site ---------------------------------------------
-      - name: Init bench & create test_site
-        run: |
-          bench init frappe-bench --frappe-branch version-15
-          cd frappe-bench
-          bench new-site test_site \
-                --admin-password "$ADMIN_PASSWORD" \
-                --mariadb-root-password "$MYSQL_ROOT_PASSWORD" \
-                --no-mariadb-socket
-          bench get-app erpnext --branch version-15
-          bench --site test_site install-app erpnext
-          bench set-config allow_tests true
-
-      # --- Tests ----------------------------------------------------------
-      - name: Run pytest
-        run: |
-          cd frappe-bench
-          pytest --maxfail=1 -q
-
-      # --- Artifacts ------------------------------------------------------
-      - name: Upload junit‑report
-        if: failure() || success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-report
-          path: frappe-bench/reports/pytest-results.xml
+      # Шаг 6: Остановка контейнеров для очистки ресурсов
+      - name: Stop Frappe Stack
+        if: always() # Выполняется всегда
+        run: docker compose down -v

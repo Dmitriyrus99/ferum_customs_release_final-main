@@ -68,7 +68,7 @@ class ServiceProject(Document):  # Имя класса в CamelCase
             except Exception as e:
                 # Если даты не удалось распарсить, это может быть ошибкой ввода
                 frappe.logger(__name__).warning(
-                    f"Could not validate dates for ServiceProject {self.name} due to parsing error: {e}"
+                    f"Could not validate dates for Service Project {self.name} due to parsing error: {e}"
                 )
                 # Можно выбросить ошибку, если формат дат критичен на этом этапе
                 # frappe.throw(_("Некорректный формат даты начала или окончания проекта."))
@@ -86,7 +86,7 @@ class ServiceProject(Document):  # Имя класса в CamelCase
                         setattr(self, fieldname, field_value.isoformat())
                     except Exception as e:
                         frappe.logger(__name__).error(
-                            f"Error converting date field '{fieldname}' to ISO format for ServiceProject '{self.name}': {e}"
+                            f"Error converting date field '{fieldname}' to ISO format for Service Project '{self.name}': {e}"
                         )
                 # else: уже обработано not isinstance(str)
             elif isinstance(field_value, str):

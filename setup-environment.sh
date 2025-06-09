@@ -30,9 +30,7 @@ sudo apt-get install -y \
 
 # --- Настройка MariaDB для совместимости с Frappe Bench ---
 echo "Configuring MariaDB for Frappe Bench..."
-sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD:-root}';"
-sudo mysql -u root -e "UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE User = 'root';"
-sudo mysql -u root -e "FLUSH PRIVILEGES;"
+sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD:-root}'; FLUSH PRIVILEGES;"
 
 # --- Установка и настройка Frappe Bench ---
 # Install bench CLI if not present
@@ -51,7 +49,8 @@ cd "$BENCH_DIR"
 if ! sudo -u frappe -H bench --site "$SITE_NAME" ls >/dev/null 2>&1; then
     sudo -u frappe -H bench new-site "$SITE_NAME" \
         --admin-password "${ADMIN_PASSWORD:-admin}" \
-        --mariadb-root-password "${MYSQL_ROOT_PASSWORD:-root}"
+        --mariadb-root-password "${MYSQL_ROOT_PASSWORD:-root}" \
+        --no-mariadb-socket
 fi
 
 # Install local app if not installed
