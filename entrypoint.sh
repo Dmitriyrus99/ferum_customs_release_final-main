@@ -8,6 +8,7 @@ if [ ! -d "$BENCH_FOLDER" ]; then
 fi
 
 cd "$BENCH_FOLDER"
+bench use dev.localhost
 
 if [[ "$1" == "pytest" ]]; then
     shift

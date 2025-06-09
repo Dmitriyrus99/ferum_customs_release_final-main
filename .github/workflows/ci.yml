@@ -118,6 +118,9 @@ jobs:
             fi
           done
 
+      - name: Show bench config
+        run: docker compose exec -T frappe bench show-config
+
       # Шаг 4: Запуск тестов pytest внутри работающего контейнера
       # Имя сервиса 'frappe' и имя сайта 'your-site-name' взяты из docker-compose.yml
       - name: Run tests inside container
