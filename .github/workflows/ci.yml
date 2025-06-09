@@ -30,6 +30,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libmysqlclient-dev mariadb-server redis-server \
+            wkhtmltopdf curl
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g yarn@1
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -79,6 +89,16 @@ jobs:
 
       - name: Build and start Frappe Stack
         run: docker compose -f docker-compose.yml up -d --build
+
+      - name: Create test site
+        run: |
+          docker compose exec -T frappe bench new-site test_site \
+            --admin-password "$ADMIN_PASSWORD" \
+            --mariadb-root-password "$MYSQL_ROOT_PASSWORD" \
+            --no-mariadb-socket
+
+      - name: Activate test site
+        run: docker compose exec -T frappe bench use test_site
 
       - name: Wait for Frappe site to be ready
         run: |
