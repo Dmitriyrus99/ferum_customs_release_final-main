@@ -26,4 +26,5 @@ if ! bench --site "$SITE_NAME" ls >/dev/null 2>&1; then
 fi
 
 echo "[bootstrap] Running tests for $APP_NAME..."
-bench --site "$SITE_NAME" run-tests --app "$APP_NAME"
+bench --site "$SITE_NAME" run-tests --app "$APP_NAME" \
+    --junit-xml="${JUNIT_XML:-/app/reports/bootstrap-results.xml}"

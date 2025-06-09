@@ -27,3 +27,6 @@ module = "ferum_customs.doctype.*"
 ignore_errors = true
 [tool.ruff]
 line-length = 200
+
+[tool.pytest.ini_options]
+addopts = "--junit-xml=reports/pytest-results.xml"
