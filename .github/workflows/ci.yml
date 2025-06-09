@@ -33,10 +33,10 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: dev-requirements.txt
 
       - name: Install Python dependencies
-        run: pip install -r requirements-dev.txt
+        run: pip install -r dev-requirements.txt
 
       - name: Cache pre-commit hooks
         uses: actions/cache@v4
@@ -78,7 +78,7 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.bench
-          key: ${{ runner.os }}-pip-bench-${{ hashFiles('**/requirements-dev.txt') }}
+          key: ${{ runner.os }}-pip-bench-${{ hashFiles('**/dev-requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-bench-
 
@@ -96,7 +96,7 @@ jobs:
       # --- Python dependencies -------------------------------------------
       - name: Install Python deps (requirements + bench CLI)
         run: |
-          pip install --no-cache-dir -r requirements-dev.txt  # содержит frappe + erpnext
+          pip install --no-cache-dir -r dev-requirements.txt  # содержит frappe + erpnext
           pip install --no-cache-dir frappe-bench
 
       # --- Bench init & site ---------------------------------------------
