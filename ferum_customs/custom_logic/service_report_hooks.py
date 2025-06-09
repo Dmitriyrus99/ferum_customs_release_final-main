@@ -38,7 +38,9 @@ def validate(doc: "ServiceReport", method: str | None = None) -> None:
         frappe.ValidationError: Если нарушены бизнес-правила.
     """
     if not doc.service_request:
-        frappe.throw(_("Не выбрана связанная заявка на обслуживание (Service Request)."))
+        frappe.throw(
+            _("Не выбрана связанная заявка на обслуживание (Service Request).")
+        )
 
     if not frappe.db.exists("Service Request", doc.service_request):
         frappe.throw(
@@ -51,9 +53,9 @@ def validate(doc: "ServiceReport", method: str | None = None) -> None:
 
     if not req_status:
         frappe.logger(__name__).error(
-            _("Не удалось получить статус для заявки '{0}', связанной с отчетом '{1}'.").format(
-                doc.service_request, doc.name
-            )
+            _(
+                "Не удалось получить статус для заявки '{0}', связанной с отчетом '{1}'."
+            ).format(doc.service_request, doc.name)
         )
         frappe.throw(
             _(
@@ -123,5 +125,7 @@ def on_submit(doc: "ServiceReport", method: str | None = None) -> None:
             exc_info=True,
         )
         frappe.throw(
-            _("Произошла ошибка при обновлении связанной заявки. Обратитесь к администратору.")
+            _(
+                "Произошла ошибка при обновлении связанной заявки. Обратитесь к администратору."
+            )
         )

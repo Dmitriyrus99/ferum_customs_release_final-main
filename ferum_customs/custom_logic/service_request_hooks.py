@@ -96,7 +96,11 @@ def get_engineers_for_object(service_object_name: str) -> List[str]:
         so_doc: "FrappeDocument" = frappe.get_doc("Service Object", service_object_name)
         engineers_table = so_doc.get("assigned_engineers") or []
         return list(
-            {entry.get("engineer") for entry in engineers_table if entry.get("engineer")}
+            {
+                entry.get("engineer")
+                for entry in engineers_table
+                if entry.get("engineer")
+            }
         )
     except frappe.DoesNotExistError:
         frappe.logger(__name__).info(
