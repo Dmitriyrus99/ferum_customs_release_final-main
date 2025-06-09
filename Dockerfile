@@ -17,6 +17,8 @@ WORKDIR /home/frappe
 RUN pip install --user frappe-bench
 ENV PATH="/home/frappe/.local/bin:$PATH"
 RUN bench --version
+RUN yarn config set registry https://registry.npmjs.org \
+ && yarn config set network-timeout 600000
 RUN bench init frappe-bench --frappe-branch version-15 --skip-assets
 
 ENTRYPOINT ["/entrypoint.sh"]
