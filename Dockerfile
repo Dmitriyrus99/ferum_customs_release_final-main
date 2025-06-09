@@ -14,8 +14,9 @@ RUN chmod +x /bootstrap.sh /entrypoint.sh
 USER frappe
 WORKDIR /home/frappe
 
-RUN pip install --user frappe-bench \
-    && ~/.local/bin/bench init frappe-bench --frappe-branch version-15 --skip-assets
-
+RUN pip install --user frappe-bench
 ENV PATH="/home/frappe/.local/bin:$PATH"
+RUN bench --version
+RUN bench init frappe-bench --frappe-branch version-15 --skip-assets
+
 ENTRYPOINT ["/entrypoint.sh"]
