@@ -16,7 +16,8 @@ cd "$BENCH_DIR"
 if ! sudo -u frappe -H bench --site "$SITE_NAME" ls >/dev/null 2>&1; then
     sudo -u frappe -H bench new-site "$SITE_NAME" \
         --admin-password "${ADMIN_PASSWORD:-admin}" \
-        --mariadb-root-password "${MYSQL_ROOT_PASSWORD:-root}"
+        --mariadb-root-password "${MYSQL_ROOT_PASSWORD:-root}" \
+        --no-mariadb-socket
 fi
 
 if ! sudo -u frappe -H bench list-apps | grep -q "$APP_NAME"; then
