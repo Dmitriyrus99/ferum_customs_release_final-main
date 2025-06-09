@@ -33,6 +33,12 @@ sudo systemctl start redis
 git clone https://github.com/Dmitriyrus99/ferumdub.git
 cd ferumdub
 
+# установите системные пакеты (Ubuntu 22.04)
+sudo apt-get update && sudo apt-get install -y \
+  git build-essential python3-dev libffi-dev libmysqlclient-dev \
+  mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
 # установка Python зависимостей
 ./install-dev.sh
 
@@ -44,6 +50,24 @@ cd ferumdub
 создан сайт `dev.localhost` и установлено приложение `ferum_customs`. Сервер
 Bench запустится автоматически и будет доступен по адресу
 `http://localhost:8000` (пользователь **Administrator**, пароль `admin`).
+
+Для ручного развертывания тестового сайта Bench:
+
+```bash
+pip install frappe-bench
+export CI=true  # позволяет запускать bench под root
+bench init frappe-bench --frappe-branch version-15
+cd frappe-bench
+bench new-site test_site \
+  --admin-password=admin \
+  --mariadb-root-password=root \
+  --no-mariadb-socket
+bench get-app erpnext --branch version-15
+bench --site test_site install-app erpnext
+bench set-config allow_tests true
+
+pytest --maxfail=1 -q
+```
 
 ## Работа с репозиторием
 
