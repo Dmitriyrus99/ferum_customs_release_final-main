@@ -37,7 +37,7 @@ cd ferumdub
 sudo apt-get update && sudo apt-get install -y \
   git build-essential python3-dev libffi-dev libmysqlclient-dev \
   mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 
 # установка Python зависимостей
 ./install-dev.sh
