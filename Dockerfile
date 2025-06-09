@@ -16,4 +16,5 @@ WORKDIR /home/frappe
 RUN pip install --user frappe-bench \
     && ~/.local/bin/bench init frappe-bench --frappe-branch version-15 --skip-assets
 
+ENV PATH="/home/frappe/.local/bin:$PATH"
 ENTRYPOINT ["/entrypoint.sh"]
