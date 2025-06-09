@@ -87,9 +87,18 @@ jobs:
       - name: Build and start Frappe Stack
         run: docker compose -f docker-compose.yml up -d --build
 
-      # Шаг 3: Ожидание полной готовности сайта Frappe
-      # Этот цикл опрашивает API сайта, пока не получит ответ 200 OK.
-      - name: Wait for Frappe site to be ready
+      # --- Bench init & site ---------------------------------------------
+      - name: Init bench & create test_site
+        run: |
+          sudo bench init frappe-bench --frappe-branch version-15
+          cd frappe-bench
+          sudo bench new-site test_site
+          bench get-app erpnext --branch version-15
+          bench --site test_site install-app erpnext
+          bench set-config allow_tests true
+
+      # --- Tests ----------------------------------------------------------
+      - name: Run pytest
         run: |
           echo "Waiting for Frappe site to become available..."
           timeout=300 # Таймаут 5 минут
