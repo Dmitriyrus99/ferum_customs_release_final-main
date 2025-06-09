@@ -7,25 +7,73 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
-    runs-on: ubuntu-22.04
-    env:
-      CI: "true"                # позволяет bench работать под root в GitHub runner
-      MYSQL_ROOT_PASSWORD: "root"
-      ADMIN_PASSWORD: "admin"
-    steps:
-      # --- Checkout --------------------------------------------------------
-      - uses: actions/checkout@v4
+  # -----------------------------------------------------------------------
+  # LINT: быстрые проверки форматирования & стат. анализа без развёртывания
+  # -----------------------------------------------------------------------
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
-      # --- Python ----------------------------------------------------------
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system packages (Node 20, wkhtmltopdf)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libmysqlclient-dev mariadb-server-10.6 redis-server \
+            wkhtmltopdf=0.12.5* curl
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g yarn@1.22
+
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"    # P0‑1c: обязательный параметр
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-dev.txt
 
-      # --- Cache -----------------------------------------------------------
-      - name: Cache pip & bench
-        uses: actions/cache@v4       # P0‑1b: параметризуем
+      - name: Install Python dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-precommit-
+
+      - name: Run pre-commit hooks (skip pytest)
+        env:
+          SKIP: pytest
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  # -----------------------------------------------------------------------
+  # TESTS: полное развёртывание Frappe‑bench + запуск pytest
+  # -----------------------------------------------------------------------
+  tests:
+    runs-on: ubuntu-22.04
+    env:
+      CI: "true"                # снимает root‑блокировку bench
+      MYSQL_ROOT_PASSWORD: "root"
+      ADMIN_PASSWORD:  "admin"
+
+    steps:
+      # --- Checkout -------------------------------------------------------
+      - uses: actions/checkout@v4
+
+      # --- Python toolchain ----------------------------------------------
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5  # P0‑1c
+        with:
+          python-version: "3.11"
+
+      # --- Cache pip & bench ---------------------------------------------
+      - name: Cache pip & bench             # P0‑1b
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
@@ -34,25 +82,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-bench-
 
-      # --- System dependencies --------------------------------------------
-      - name: Install system packages
+      # --- System dependencies -------------------------------------------
+      - name: Install system packages (MariaDB, Redis, Node 20, wkhtmltopdf)
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-dev libffi-dev libmysqlclient-dev \
                mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
-          # Node 20 + yarn 1.x for Frappe v15
+          # Node 20 + yarn 1.x for Frappe v15
           curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
           sudo apt-get install -y nodejs
           sudo npm install -g yarn@1.22
 
-      # --- Python dependencies --------------------------------------------
-      - name: Install Python deps
+      # --- Python dependencies -------------------------------------------
+      - name: Install Python deps (requirements + bench CLI)
         run: |
           pip install --no-cache-dir -r requirements-dev.txt  # содержит frappe + erpnext
           pip install --no-cache-dir frappe-bench
 
-      # --- Bench init & site ----------------------------------------------
-      - name: Init bench & test_site
+      # --- Bench init & site ---------------------------------------------
+      - name: Init bench & create test_site
         run: |
           bench init frappe-bench --frappe-branch version-15
           cd frappe-bench
@@ -64,16 +112,16 @@ jobs:
           bench --site test_site install-app erpnext
           bench set-config allow_tests true
 
-      # --- Tests -----------------------------------------------------------
+      # --- Tests ----------------------------------------------------------
       - name: Run pytest
         run: |
           cd frappe-bench
           pytest --maxfail=1 -q
 
-      # --- Artifacts -------------------------------------------------------
-      - name: Upload pytest cache
+      # --- Artifacts ------------------------------------------------------
+      - name: Upload junit‑report
         if: failure() || success()
-        uses: actions/upload-artifact@v4  # P0‑1a: v4 artefact action
+        uses: actions/upload-artifact@v4  # P0‑1a
         with:
           name: junit-report
           path: frappe-bench/.pytest_cache/v

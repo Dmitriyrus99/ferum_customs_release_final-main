@@ -11,6 +11,7 @@ setup(
     zip_safe=False,
     install_requires=[
         "setuptools",
-        "frappe",
+        "frappe~=15.21",
+        "erpnext~=15.21",
     ],
 )
