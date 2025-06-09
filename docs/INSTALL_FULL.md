@@ -38,7 +38,7 @@ sudo systemctl start mariadb
 ```
 При необходимости задайте пароль `root` для пользователя `root`:
 ```bash
-sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; FLUSH PRIVILEGES;"
+sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;"
 ```
 
 ## 6. Установка wkhtmltopdf
@@ -65,7 +65,7 @@ cd ferumdub
 ## 9. Создание сайта
 ```bash
 cd frappe-bench
-bench new-site erp.ferumrus.ru
+bench new-site erp.ferumrus.ru --no-mariadb-socket
 ```
 Введите пароль root для MariaDB и задайте пароль администратора.
 
