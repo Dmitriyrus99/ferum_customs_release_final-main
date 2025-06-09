@@ -1,4 +1,7 @@
-import requests
+import pytest
+
+# Skip test if 'requests' is not installed.
+requests = pytest.importorskip("requests")
 
 
 def test_site_index(frappe_site_container):
