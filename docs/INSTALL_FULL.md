@@ -65,7 +65,7 @@ cd ferumdub
 ## 9. Создание сайта
 ```bash
 cd frappe-bench
-bench new-site erp.ferumrus.ru --no-mariadb-socket
+sudo bench new-site erp.ferumrus.ru
 ```
 Введите пароль root для MariaDB и задайте пароль администратора.
 

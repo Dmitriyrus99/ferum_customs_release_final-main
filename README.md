@@ -56,12 +56,9 @@ Bench запустится автоматически и будет доступ
 ```bash
 pip install frappe-bench
 export CI=true  # позволяет запускать bench под root
-bench init frappe-bench --frappe-branch version-15
+sudo bench init frappe-bench --frappe-branch version-15
 cd frappe-bench
-bench new-site test_site \
-  --admin-password=admin \
-  --mariadb-root-password=root \
-  --no-mariadb-socket
+sudo bench new-site test_site
 bench get-app erpnext --branch version-15
 bench --site test_site install-app erpnext
 bench set-config allow_tests true

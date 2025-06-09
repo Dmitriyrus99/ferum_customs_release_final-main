@@ -102,12 +102,9 @@ jobs:
       # --- Bench init & site ---------------------------------------------
       - name: Init bench & create test_site
         run: |
-          bench init frappe-bench --frappe-branch version-15
+          sudo bench init frappe-bench --frappe-branch version-15
           cd frappe-bench
-          bench new-site test_site \
-                --admin-password "$ADMIN_PASSWORD" \
-                --mariadb-root-password "$MYSQL_ROOT_PASSWORD" \
-                --no-mariadb-socket
+          sudo bench new-site test_site
           bench get-app erpnext --branch version-15
           bench --site test_site install-app erpnext
           bench set-config allow_tests true
