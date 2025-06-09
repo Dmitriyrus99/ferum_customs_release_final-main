@@ -3,7 +3,9 @@ import subprocess
 import time
 
 import pytest
-import requests
+
+# Skip the integration tests early when the 'requests' package is not available.
+requests = pytest.importorskip("requests")
 
 
 def _wait_for_site(url: str, timeout: int = 120) -> None:
