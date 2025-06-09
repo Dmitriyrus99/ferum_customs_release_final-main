@@ -37,7 +37,7 @@ jobs:
   #  ЗАДАНИЕ 1: ПРОВЕРКА КАЧЕСТВА КОДА (ЛИНТЕРЫ)
   # =======================================================
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10 # Ограничение времени выполнения
 
     steps:
@@ -75,7 +75,7 @@ jobs:
   tests:
     # Запускается только после успешного завершения 'lint'
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     steps:
