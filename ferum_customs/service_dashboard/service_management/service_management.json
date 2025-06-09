@@ -1,0 +1,18 @@
+{
+ "cards": [],
+ "charts": [
+  {"chart": "Engineer Workload", "width": "Full"}
+ ],
+ "creation": "2025-01-01 00:00:00.000000",
+ "dashboard_name": "Service Management",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 1,
+ "is_standard": 1,
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Ferum Customs",
+ "name": "Service Management",
+ "owner": "Administrator"
+}

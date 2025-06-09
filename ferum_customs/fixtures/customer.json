@@ -1,0 +1,8 @@
+[
+  {
+    "doctype": "Customer",
+    "customer_name": "Демо Заказчик",
+    "customer_group": "Commercial",
+    "territory": "Russia"
+  }
+]

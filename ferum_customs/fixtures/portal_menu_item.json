@@ -1,0 +1,10 @@
+[
+  {
+    "doctype": "Portal Menu Item",
+    "title": "Service Requests",
+    "route": "service-requests",
+    "reference_doctype": "Service Request",
+    "role": "Customer",
+    "enabled": 1
+  }
+]

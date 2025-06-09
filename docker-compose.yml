@@ -1,0 +1,31 @@
+version: '3'
+
+services: 
+  mariadb:
+    image: mariadb:10.6
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mariadb:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+
+  frappe:
+    build: .
+    command: bench start
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mariadb
+      - redis
+    environment:
+      SITE_NAME: your-site-name
+      DB_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root
+      ADMIN_PASSWORD: admin
+      INSTALL_APPS: erpnext,ferum_customs
+
+volumes:
+  mariadb:
+  redis:

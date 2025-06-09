@@ -1,0 +1,9 @@
+[settings]
+branch_format = codex/{feature}
+diff_format = unified
+
+[triggers]
+include_extensions = .py
+exclude_paths = ^docs/|\.md$
+run_tests = true
+run_linters = true
