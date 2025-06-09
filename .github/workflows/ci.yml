@@ -116,7 +116,7 @@ jobs:
       - name: Run pytest
         run: |
           cd frappe-bench
-          pytest --maxfail=1 -q
+          pytest --maxfail=1 -q --junitxml=pytest_report.xml
 
       # --- Artifacts ------------------------------------------------------
       - name: Upload junit‑report
@@ -124,4 +124,4 @@ jobs:
         uses: actions/upload-artifact@v4  # P0‑1a
         with:
           name: junit-report
-          path: frappe-bench/.pytest_cache/v
+          path: frappe-bench/pytest_report.xml
