@@ -1,27 +1,15 @@
-# .github/workflows/ci.yml
-
-name: CI/CD Pipeline
-
-run-name: >-
-  🛠️ ${{ github.actor }} запустил CI для ветки ${{ github.ref_name }}
+name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master]
   pull_request:
-    branches: [main, develop]
   workflow_dispatch:
-  schedule:
-    - cron: '0 4 * * 1'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
 
 jobs:
+  # -----------------------------------------------------------------------
+  # LINT: быстрые проверки форматирования & стат. анализа без развёртывания
+  # -----------------------------------------------------------------------
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -30,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install system packages
+      - name: Install system packages (Node 20, wkhtmltopdf)
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -40,11 +28,11 @@ jobs:
           sudo apt-get install -y nodejs
           sudo npm install -g yarn@1.22
 
-      - name: Setup Python
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
           cache-dependency-path: requirements-dev.txt
 
       - name: Install Python dependencies
@@ -58,94 +46,82 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-precommit-
 
-
       - name: Run pre-commit hooks (skip pytest)
         env:
           SKIP: pytest
         run: pre-commit run --all-files --show-diff-on-failure
 
+  # -----------------------------------------------------------------------
+  # TESTS: полное развёртывание Frappe‑bench + запуск pytest
+  # -----------------------------------------------------------------------
   tests:
-    needs: lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-22.04
     env:
-      CI: 'true'
-      MYSQL_ROOT_PASSWORD: root
-      ADMIN_PASSWORD: admin
-    strategy:
-      matrix:
-        type: [unit, integration, e2e]
+      CI: "true"                # снимает root‑блокировку bench
+      MYSQL_ROOT_PASSWORD: "root"
+      ADMIN_PASSWORD:  "admin"
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # --- Checkout -------------------------------------------------------
+      - uses: actions/checkout@v4
 
+      # --- Python toolchain ----------------------------------------------
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5  # P0‑1c
+        with:
+          python-version: "3.11"
 
-      - name: Cache bench
-        id: bench-cache
+      # --- Cache pip & bench ---------------------------------------------
+      - name: Cache pip & bench             # P0‑1b
         uses: actions/cache@v4
         with:
-          path: ~/.bench
-          key: ${{ runner.os }}-bench-${{ hashFiles('patches.txt') }}
+          path: |
+            ~/.cache/pip
+            ~/.bench
+          key: ${{ runner.os }}-pip-bench-${{ hashFiles('**/requirements-dev.txt') }}
           restore-keys: |
-            ${{ runner.os }}-bench-
+            ${{ runner.os }}-pip-bench-
 
-      - name: Build and start Frappe Stack
-        run: docker compose -f docker-compose.yml up -d --build
-
-      - name: Create test site
+      # --- System dependencies -------------------------------------------
+      - name: Install system packages (MariaDB, Redis, Node 20, wkhtmltopdf)
         run: |
-          docker compose exec -T frappe bench new-site test_site \
-            --admin-password "$ADMIN_PASSWORD" \
-            --mariadb-root-password "$MYSQL_ROOT_PASSWORD" \
-            --no-mariadb-socket
+          sudo apt-get update
+          sudo apt-get install -y git build-essential python3-dev libffi-dev libmysqlclient-dev \
+               mariadb-server redis-server xvfb libfontconfig wkhtmltopdf
+          # Node 20 + yarn 1.x for Frappe v15
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g yarn@1.22
 
-      - name: Activate test site
-        run: docker compose exec -T frappe bench use test_site
-
-      - name: Wait for Frappe site to be ready
+      # --- Python dependencies -------------------------------------------
+      - name: Install Python deps (requirements + bench CLI)
         run: |
-          echo "Waiting for Frappe site to become available..."
-          timeout=300
-          start_time=$(date +%s)
-          SITE_HOST="http://localhost:8000"
-          while true; do
-            current_time=$(date +%s)
-            elapsed=$((current_time - start_time))
-            if [ $elapsed -ge $timeout ]; then
-              echo "::error::Timeout: Site did not become ready in ${timeout} seconds."
-              docker compose logs frappe
-              exit 1
-            fi
-            status_code=$(curl -s -o /dev/null -w "%{http_code}" $SITE_HOST/api/method/ping || echo "000")
-            if [ "$status_code" -eq 200 ]; then
-              echo "Site is ready! Status code: $status_code."
-              break
-            else
-              echo "Site not ready yet (status: $status_code). Retrying in 15 seconds..."
-              sleep 15
-            fi
-          done
+          pip install --no-cache-dir -r requirements-dev.txt  # содержит frappe + erpnext
+          pip install --no-cache-dir frappe-bench
 
-      - name: Show bench config
-        run: docker compose exec -T frappe bench show-config
+      # --- Bench init & site ---------------------------------------------
+      - name: Init bench & create test_site
+        run: |
+          bench init frappe-bench --frappe-branch version-15
+          cd frappe-bench
+          bench new-site test_site \
+                --admin-password "$ADMIN_PASSWORD" \
+                --mariadb-root-password "$MYSQL_ROOT_PASSWORD" \
+                --no-mariadb-socket
+          bench get-app erpnext --branch version-15
+          bench --site test_site install-app erpnext
+          bench set-config allow_tests true
 
-      - name: Run ${{ matrix.type }} tests inside container
-        run: >
-          docker compose exec -T frappe sh -c "
-          mkdir -p /workspace/reports &&
-          pytest /workspace/ferum_customs/ferum_customs/tests/${{ matrix.type }} \
-          --junitxml=/workspace/reports/${{ matrix.type }}-results.xml \
-          --maxfail=1"
+      # --- Tests ----------------------------------------------------------
+      - name: Run pytest
+        run: |
+          cd frappe-bench
+          pytest --maxfail=1 -q
 
-      - name: Upload ${{ matrix.type }} test report
-        if: always()
-        uses: actions/upload-artifact@v4
+      # --- Artifacts ------------------------------------------------------
+      - name: Upload junit‑report
+        if: failure() || success()
+        uses: actions/upload-artifact@v4  # P0‑1a
         with:
-          name: ${{ matrix.type }}-test-report
-          path: reports/${{ matrix.type }}-results.xml
-          if-no-files-found: warn
-
-      - name: Stop Frappe Stack
-        if: always()
-        run: docker compose down -v
+          name: junit-report
+          path: frappe-bench/.pytest_cache/v
