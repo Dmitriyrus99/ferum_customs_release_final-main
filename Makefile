@@ -21,4 +21,5 @@ fixtures:
 	bench --site $(SITE) export-fixtures
 
 test:
-	bench --site $(SITE) run-tests --app $(APP)
+        bench --site $(SITE) run-tests --app $(APP) \
+        --junit-xml=reports/make-results.xml
