@@ -28,15 +28,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Cache pre-commit hooks
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-precommit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Build and start Frappe Stack
         run: docker compose -f docker-compose.yml up -d --build
@@ -100,7 +100,7 @@ jobs:
 
       - name: Upload ${{ matrix.type }} test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.type }}-test-report
           path: reports/${{ matrix.type }}-results.xml
