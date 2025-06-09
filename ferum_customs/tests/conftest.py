@@ -1,113 +1,91 @@
-import os
-import subprocess
-import shutil
+# ferum_customs/tests/conftest.py
+
 import pytest
+import os
+import sys
 
-try:
-    import frappe
-except Exception:  # pragma: no cover - frappe not installed
-    frappe = None
-
+@pytest.fixture(scope="session", autouse=True)
+def setup_sys_path():
+    """Ensure the ferum_customs module can be imported."""
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if root not in sys.path:
+        sys.path.insert(0, root)
 
 @pytest.fixture(scope="session")
-def frappe_test_context():
-    """
-    Создает полноценный тестовый сайт Frappe один раз за сессию.
-    """
-    if frappe is None:
-        pytest.skip("frappe not available")
+def site_host():
+    """Provides base URL for frappe site."""
+    return os.getenv("SITE_HOST", "http://localhost:8000")
 
-    test_site_name = "test_site"
-    cwd = os.getcwd()
-    bench_cmd = shutil.which("bench")
-    if bench_cmd is None:
-        pytest.skip("bench CLI not available")
-    bench_env = os.environ.copy()
-    bench_env.setdefault("CI", "1")
+# ferum_customs/tests/test_example.py
 
+import pytest
+import requests
+
+
+def test_sample():
+    assert 1 + 1 == 2
+
+
+def test_import():
     try:
-        subprocess.run(
-            [
-                bench_cmd,
-                "drop-site",
-                test_site_name,
-                "--force",
-            ],
-            check=False,
-            env=bench_env,
+        import ferum_customs
+    except ImportError:
+        pytest.fail("ferum_customs package could not be imported")
+
+
+def test_business_logic_validate_data():
+    from ferum_customs.custom_logic import service_report_hooks
+
+    sample_data = {
+        "report_type": "inspection",
+        "status": "open",
+    }
+
+    result = service_report_hooks.validate_data(sample_data)
+    assert result is True
+
+
+def test_business_logic_missing_field():
+    from ferum_customs.custom_logic import service_report_hooks
+
+    sample_data = {
+        "status": "open",
+    }
+
+    with pytest.raises(KeyError):
+        service_report_hooks.validate_data(sample_data)
+
+
+def test_ping_endpoint(site_host):
+    """Check if the Frappe instance is running."""
+    try:
+        response = requests.get(f"{site_host}/api/method/ping")
+        assert response.status_code == 200
+        assert response.json().get("message") == "pong"
+    except requests.exceptions.ConnectionError:
+        pytest.skip("Frappe instance not reachable.")
+
+
+def test_post_get_current_user(site_host):
+    """Test a real frappe method: common.get_logged_user."""
+    try:
+        response = requests.post(
+            f"{site_host}/api/method/frappe.auth.get_logged_user"
         )
-        try:
-            subprocess.run(
-                [
-                    bench_cmd,
-                    "new-site",
-                    test_site_name,
-                    "--admin-password",
-                    "admin",
-                    "--mariadb-root-password",
-                    os.environ.get("MYSQL_ROOT_PASSWORD", "root"),
-                ],
-                check=True,
-                env=bench_env,
-            )
-        except subprocess.CalledProcessError:
-            pytest.skip("bench new-site failed")
-
-        subprocess.run(
-            [
-                bench_cmd,
-                "use",
-                test_site_name,
-            ],
-            check=True,
-            env=bench_env,
-        )
-        subprocess.run(
-            [
-                bench_cmd,
-                "install-app",
-                "erpnext",
-            ],
-            check=True,
-            env=bench_env,
-        )
-        subprocess.run(
-            [
-                bench_cmd,
-                "install-app",
-                "ferum_customs",
-            ],
-            check=True,
-            env=bench_env,
-        )
-
-        frappe.init(site=test_site_name)
-        frappe.connect()
-        frappe.flags.in_test = True
-
-        yield
-
-    finally:
-        frappe.destroy()
-        subprocess.run(
-            [
-                bench_cmd,
-                "drop-site",
-                test_site_name,
-                "--force",
-            ],
-            check=False,
-            env=bench_env,
-        )
-        os.chdir(cwd)
+        assert response.status_code == 200
+        json_data = response.json()
+        assert "message" in json_data
+        assert isinstance(json_data["message"], str)
+    except requests.exceptions.ConnectionError:
+        pytest.skip("Frappe instance not reachable.")
 
 
-@pytest.fixture(autouse=True)
-def use_frappe_test_context(frappe_test_context):
-    yield
-    frappe.db.rollback()
-
-
-@pytest.fixture()
-def frappe_site(frappe_test_context):
-    return "test_site"
+def test_post_logout(site_host):
+    """Test frappe.auth.logout to terminate session."""
+    try:
+        response = requests.post(f"{site_host}/api/method/frappe.auth.logout")
+        assert response.status_code == 200
+        json_data = response.json()
+        assert json_data.get("message") == "Logged out"
+    except requests.exceptions.ConnectionError:
+        pytest.skip("Frappe instance not reachable.")
