@@ -9,9 +9,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=[
-        "setuptools",
-        "frappe~=15.21",
-        "erpnext~=15.21",
-    ],
+    install_requires=["setuptools"],
 )
