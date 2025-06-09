@@ -53,6 +53,10 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CI: 'true'
+      MYSQL_ROOT_PASSWORD: root
+      ADMIN_PASSWORD: admin
     strategy:
       matrix:
         type: [unit, integration, e2e]
@@ -60,6 +64,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'dev-requirements.txt') }}
+
+      - name: Cache bench
+        uses: actions/cache@v3
+        with:
+          path: ~/.bench
+          key: ${{ runner.os }}-bench-${{ hashFiles('patches.txt') }}
 
       - name: Build and start Frappe Stack
         run: docker compose -f docker-compose.yml up -d --build
@@ -95,8 +111,9 @@ jobs:
         run: >
           docker compose exec -T frappe sh -c "
           mkdir -p /workspace/reports &&
-          pytest /workspace/ferum_customs/ferum_customs/tests/${{ matrix.type }}
-          --junitxml=/workspace/reports/${{ matrix.type }}-results.xml"
+          pytest /workspace/ferum_customs/ferum_customs/tests/${{ matrix.type }} \
+          --junitxml=/workspace/reports/${{ matrix.type }}-results.xml \
+          --maxfail=1"
 
       - name: Upload ${{ matrix.type }} test report
         if: always()
