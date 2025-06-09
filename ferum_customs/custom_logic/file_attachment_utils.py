@@ -15,8 +15,10 @@ from frappe import _
 
 if TYPE_CHECKING:
     from frappe.model.document import Document as FrappeDocument
-else:  # pragma: no cover - provide runtime alias
-    from frappe.model.document import Document as FrappeDocument
+else:  # pragma: no cover - provide fallback when Frappe is absent
+    from typing import Any
+
+    FrappeDocument = Any  # type: ignore
 
 # Получаем экземпляр логгера Frappe для текущего модуля
 logger = frappe.logger(__name__)
