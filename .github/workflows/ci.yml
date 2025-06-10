@@ -87,15 +87,6 @@ jobs:
       - name: Build and start Frappe Stack
         run: docker compose -f docker-compose.yml up -d --build
 
-      # --- Bench init & site ---------------------------------------------
-      - name: Init bench & create test_site
-        run: |
-          sudo bench init frappe-bench --frappe-branch version-15
-          cd frappe-bench
-          sudo bench new-site test_site
-          bench get-app erpnext --branch version-15
-          bench --site test_site install-app erpnext
-          bench set-config allow_tests true
 
       # --- Tests ----------------------------------------------------------
       - name: Run pytest
@@ -128,11 +119,11 @@ jobs:
           done
 
       # Шаг 4: Запуск тестов pytest внутри работающего контейнера
-      # Имя сервиса 'frappe' и имя сайта 'your-site-name' взяты из docker-compose.yml
+      # Имя сервиса 'frappe' и имя сайта 'test_site' взяты из docker-compose.yml
       - name: Run tests inside container
         run: >
           docker compose exec -T frappe
-          bench --site your-site-name run-tests --app ferum_customs
+          bench --site test_site run-tests --app ferum_customs
 
       # Шаг 5 (опционально): Загрузка артефактов (отчетов о тестировании)
       # Если ваши тесты генерируют отчеты (например, в формате JUnit),

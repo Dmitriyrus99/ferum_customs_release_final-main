@@ -8,10 +8,11 @@ RUN apt-get update \
     && useradd -ms /bin/bash frappe
 RUN pip install --no-cache-dir pytest pytest-cov
 
+COPY bench_setup.sh /bench_setup.sh
 COPY bootstrap.sh /bootstrap.sh
 COPY ferum_customs /app/ferum_customs
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /bootstrap.sh /entrypoint.sh
+RUN chmod +x /bootstrap.sh /bench_setup.sh /entrypoint.sh
 
 USER frappe
 WORKDIR /home/frappe
