@@ -31,9 +31,10 @@ fixtures = [
     "custom_docperm.json",
     "workflow_service_request.json",
     "portal_menu_item.json",
-    "notification.json",
     "role.json",
+    "notification.json",
     "users.json",
+    "customer.json",
 ]
 
 try:
