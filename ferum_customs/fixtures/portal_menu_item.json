@@ -1,5 +1,6 @@
 [
   {
+    "name": "Service-Requests",
     "doctype": "Portal Menu Item",
     "title": "Service Requests",
     "route": "service-requests",
