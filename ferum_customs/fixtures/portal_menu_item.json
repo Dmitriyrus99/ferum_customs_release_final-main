@@ -5,6 +5,8 @@
     "route": "service-requests",
     "reference_doctype": "Service Request",
     "role": "Customer",
-    "enabled": 1
+    "enabled": 1,
+    "parent": "Portal Menu",
+    "parenttype": "Portal Menu"
   }
 ]
