@@ -24,21 +24,16 @@ get_notification_config = (
 )
 
 fixtures = [
-    "custom_fields",
-    "custom_docperm",
-    {
-        "dt": "Role",
-        "filters": [["name", "in", ["Проектный менеджер", "Инженер", "Заказчик"]]],
-    },
-    {"dt": "Workflow", "filters": [["name", "in", ["Service Request Workflow"]]]},
-    "Customer",
-    "Service Project",
-    "Service Object",
-    "Service Request",
-    "Service Report",
-    "Notification",
-    "Portal Menu Item",
-    "User",
+    "service_request.json",
+    "service_object.json",
+    "service_project.json",
+    "custom_fields.json",
+    "custom_docperm.json",
+    "workflow_service_request.json",
+    "portal_menu_item.json",
+    "notification.json",
+    "role.json",
+    "users.json",
 ]
 
 try:
