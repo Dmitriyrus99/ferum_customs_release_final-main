@@ -1,4 +1,4 @@
-from ferum_customs.utilities import sum_values
+from ferum_customs.utils.utils import sum_values
 
 
 class TestSumValues:

@@ -22,3 +22,6 @@
 - Recommend to add .env to .gitignore
 - Enable SMTPS/SSL when deploying
 
+## Reporting Vulnerabilities
+If you discover a security issue, please email [security@example.com](mailto:security@example.com) with details. We appreciate responsible disclosure and will respond as quickly as possible.
+

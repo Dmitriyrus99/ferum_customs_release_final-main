@@ -75,6 +75,7 @@ pre-commit install
 ```
 
 Перед коммитом будет автоматически выполняться `black`, `ruff`, `mypy` и `pytest`. Вы также можете запустить их вручную:
+Ruff заменяет Flake8, поэтому отдельный запуск Flake8 не требуется.
 
 ```bash
 pre-commit run --all-files
@@ -87,7 +88,7 @@ ferum_customs/
 ├── custom_logic/          # хуки и дополнительная логика
 ├── doctype/               # определения DocType
 ├── patches/               # скрипты миграций
-├── tests/                 # autotests
+├── ferum_customs/tests/   # autotests
 install-dev.sh             # создание виртуального окружения
 dev_bootstrap.sh           # автоматическое развёртывание Bench
 Makefile                   # часто используемые команды
