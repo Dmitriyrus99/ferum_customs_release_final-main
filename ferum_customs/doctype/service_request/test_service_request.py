@@ -10,12 +10,7 @@ except Exception:  # pragma: no cover
     pytest.skip("frappe not available", allow_module_level=True)
 
 # Импортируйте ваши константы
-from ferum_customs.constants import (
-    STATUS_VYPOLNENA,
-    STATUS_OTKRYTA,
-    STATUS_ZAKRYTA,
-)
-
+from ferum_customs.constants import STATUS_OTKRYTA, STATUS_VYPOLNENA, STATUS_ZAKRYTA
 
 # Constants used in tests. FrappeTestCase will provide matching fixtures.
 TEST_CUSTOMER_NAME = "_Test Customer for SR Tests"

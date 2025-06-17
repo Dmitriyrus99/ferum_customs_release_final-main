@@ -3,12 +3,13 @@
 Python-контроллер для DocType "Service Report".
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+
 import datetime
+from typing import TYPE_CHECKING, List
 
 import frappe
-from frappe.model.document import Document
 from frappe import _
+from frappe.model.document import Document
 
 if TYPE_CHECKING:
     pass

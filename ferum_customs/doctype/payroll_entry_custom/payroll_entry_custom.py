@@ -4,10 +4,11 @@ Python-контроллер для DocType "Payroll Entry Custom".
 """
 from __future__ import annotations
 
-# from typing import TYPE_CHECKING
-
 # import frappe # Не используется напрямую в этом файле, кроме как для frappe.model.document.Document
 from frappe.model.document import Document
+
+# from typing import TYPE_CHECKING
+
 
 # from frappe import _ # Если будут пользовательские сообщения
 

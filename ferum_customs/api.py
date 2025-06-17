@@ -1,7 +1,8 @@
+from typing import Optional
+
 import frappe
 from frappe import _, whitelist
 from frappe.exceptions import PermissionError
-from typing import Optional
 
 
 @whitelist()

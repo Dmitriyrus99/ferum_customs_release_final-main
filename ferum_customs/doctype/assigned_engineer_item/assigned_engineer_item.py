@@ -4,9 +4,9 @@ Python-контроллер для дочернего DocType "Assigned Engineer
 Этот DocType используется как таблица в другом документе (например, Service Object).
 """
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 import datetime  # Для работы с датами и временем
+from typing import TYPE_CHECKING
 
 import frappe
 from frappe.model.document import Document
