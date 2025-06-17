@@ -1,5 +1,3 @@
-import pytest
-
 from ferum_customs.utilities import sum_values
 
 
