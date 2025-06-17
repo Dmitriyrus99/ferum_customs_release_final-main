@@ -1,0 +1,8 @@
+[Unit]
+Description=Daily backup of Frappe site
+
+[Service]
+Type=oneshot
+Environment=SITE=dev.localhost
+WorkingDirectory=/workspace/ferum_customs_release_final-main
+ExecStart=/workspace/ferum_customs_release_final-main/scripts/backup.sh
