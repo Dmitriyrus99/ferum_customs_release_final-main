@@ -22,7 +22,7 @@ services:
     environment:
       - SITE_NAME=test_site
       - ADMIN_PWD=admin
-      - DB_ROOT_PWD=
+      - DB_ROOT_PWD=root
     volumes:
       - sites_volume:/home/frappe/frappe-bench/sites
 
