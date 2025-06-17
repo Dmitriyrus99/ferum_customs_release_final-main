@@ -92,7 +92,7 @@ jobs:
       - name: Run pytest
         run: |
           echo "Waiting for Frappe site to become available..."
-          timeout=300 # Таймаут 5 минут
+          timeout=600 # Увеличенный таймаут 10 минут
           start_time=$(date +%s)
           # Имя хоста и порт должны соответствовать настройкам в docker-compose.yml
           SITE_HOST="http://localhost:8000"
@@ -102,6 +102,7 @@ jobs:
             elapsed=$((current_time - start_time))
             if [ $elapsed -ge $timeout ]; then
               echo "::error::Timeout: Site did not become ready in ${timeout} seconds."
+              docker compose logs mariadb
               docker compose logs frappe # Выводим логи для отладки
               exit 1
             fi
