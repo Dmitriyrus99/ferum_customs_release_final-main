@@ -1,6 +1,4 @@
-black
-ruff
-pytest
-requests==2.31.0
-click==8.1.7
-frappe
+frappe~=15.21
+erpnext~=15.21
+qrcode
+zxcvbn-python
