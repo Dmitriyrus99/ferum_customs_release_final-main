@@ -33,3 +33,14 @@ sudo systemctl enable --now ferum_backup.timer
 ```
 
 The timer runs `ferum_backup.service` daily and keeps archives for seven days.
+
+## Automation via cron
+
+To schedule backups with cron copy the provided job file:
+
+```bash
+sudo cp scripts/cron/ferum_backup /etc/cron.d/
+sudo systemctl reload cron
+```
+
+The cron job runs `backup.sh` every day at 02:00.

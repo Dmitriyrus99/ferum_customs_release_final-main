@@ -1,0 +1,3 @@
+# Example cron job for daily Ferum Customs backups
+# Adjust the path to backup.sh if the repository is elsewhere
+0 2 * * * root /workspace/ferum_customs_release_final-main/scripts/backup.sh

@@ -153,7 +153,8 @@ export OPENAI_API_KEY="<ваш-ключ>"
 Scripts in the `scripts` directory simplify creation and restoration of backups.
 Run `./scripts/backup.sh` to create an archive and `./scripts/restore.sh` with a
 backup file to restore. Systemd unit files inside `scripts/systemd` can automate
-daily backups. Detailed instructions are available in
+daily backups. A cron job example is available in `scripts/cron` for systems
+where systemd is not used. Detailed instructions are available in
 [docs/backup.md](docs/backup.md).
 
 После настройки запустите `codex` в каталоге проекта. Подробности в [docs/CODEX_SETUP.md](docs/CODEX_SETUP.md).
