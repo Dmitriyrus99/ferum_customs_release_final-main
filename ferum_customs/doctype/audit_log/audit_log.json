@@ -1,0 +1,14 @@
+{
+  "doctype": "DocType",
+  "custom": 1,
+  "name": "Audit Log",
+  "module": "Ferum Customs",
+  "track_changes": 1,
+  "fields": [
+    {"fieldname": "user", "label": "User", "fieldtype": "Link", "options": "User", "reqd": 1, "in_list_view": 1},
+    {"fieldname": "timestamp", "label": "Timestamp", "fieldtype": "Datetime", "default": "Now", "in_list_view": 1},
+    {"fieldname": "action", "label": "Action", "fieldtype": "Data", "reqd": 1, "in_list_view": 1},
+    {"fieldname": "reference_doctype", "label": "Reference Doctype", "fieldtype": "Link", "options": "DocType", "in_list_view": 1},
+    {"fieldname": "reference_name", "label": "Reference Name", "fieldtype": "Data", "in_list_view": 1}
+  ]
+}

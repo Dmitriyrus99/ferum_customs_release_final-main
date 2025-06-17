@@ -5,5 +5,5 @@ ruff
 pytest
 mypy
 pre-commit
-requests==2.32.4
+requests==2.31.0
 click==8.1.7
