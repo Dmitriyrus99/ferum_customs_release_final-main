@@ -1,9 +1,10 @@
+import importlib
 import sys
 import types
-from types import SimpleNamespace
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, cast
-import importlib
+
 import pytest
 
 # Ensure project root is on sys.path for imports

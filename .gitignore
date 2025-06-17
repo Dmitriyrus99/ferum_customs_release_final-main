@@ -8,3 +8,8 @@ __pycache__/
 # OS
 .DS_Store
 reports/
+*.pyc
+.pytest_cache/
+node_modules/
+sites/
+frappe-bench/
