@@ -5,6 +5,10 @@ BENCH_FOLDER="${BENCH_FOLDER:-frappe-bench}"
 SITE_NAME="${SITE_NAME:-test_site}"
 ADMIN_PWD="${ADMIN_PWD:-admin}"
 DB_ROOT_PWD="${DB_ROOT_PWD:-""}"
+DB_HOST="${DB_HOST:-mariadb}"
+DB_PORT="${DB_PORT:-3306}"
+DB_ROOT_USER="${DB_ROOT_USER:-root}"
+DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-$DB_ROOT_PWD}"
 
 if [ ! -d "$BENCH_FOLDER" ]; then
     /bootstrap.sh
@@ -14,9 +18,16 @@ cd "$BENCH_FOLDER"
 
 if [ ! -f "/home/frappe/frappe-bench/sites/${SITE_NAME}/site_config.json" ]; then
     echo ">> Creating Frappe site ${SITE_NAME}"
+    until mysqladmin ping -h"$DB_HOST" --silent; do
+        echo "\u23F3 Waiting for MariaDB..."
+        sleep 5
+    done
     bench new-site "$SITE_NAME" \
          --admin-password "$ADMIN_PWD" \
-         --mariadb-root-password "$DB_ROOT_PWD" \
+         --db-host "$DB_HOST" \
+         --db-port "$DB_PORT" \
+         --mariadb-root-username "$DB_ROOT_USER" \
+         --mariadb-root-password "$DB_ROOT_PASSWORD" \
          --install-app erpnext
 fi
 

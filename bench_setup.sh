@@ -15,9 +15,20 @@ init_bench() {
 
 create_site() {
     if ! bench --site "$SITE_NAME" ls >/dev/null 2>&1; then
+        DB_HOST="${DB_HOST:-mariadb}"
+        DB_PORT="${DB_PORT:-3306}"
+        DB_ROOT_USER="${DB_ROOT_USER:-root}"
+        DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-root}}"
+        until mysqladmin ping -h"$DB_HOST" --silent; do
+            echo "\u23F3 Waiting for MariaDB..."
+            sleep 5
+        done
         bench new-site "$SITE_NAME" \
             --admin-password "${ADMIN_PASSWORD:-admin}" \
-            --mariadb-root-password "${MYSQL_ROOT_PASSWORD:-root}" \
+            --db-host "$DB_HOST" \
+            --db-port "$DB_PORT" \
+            --mariadb-root-username "$DB_ROOT_USER" \
+            --mariadb-root-password "$DB_ROOT_PASSWORD" \
             --no-mariadb-socket
     fi
 }

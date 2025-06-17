@@ -1,15 +1,24 @@
 version: '3'
 
-services: 
+services:
   mariadb:
     image: mariadb:10.6
     environment:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - mariadb:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - frappe_net
 
   redis:
     image: redis:latest
+    networks:
+      - frappe_net
 
   frappe:
     build: .
@@ -17,16 +26,27 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - mariadb
-      - redis
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - SITE_NAME=test_site
       - ADMIN_PWD=admin
       - DB_ROOT_PWD=root
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_ROOT_USER=root
+      - DB_ROOT_PASSWORD=root
     volumes:
       - sites_volume:/home/frappe/frappe-bench/sites
+    networks:
+      - frappe_net
 
 volumes:
   mariadb:
   redis:
   sites_volume:
+
+networks:
+  frappe_net:
