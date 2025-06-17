@@ -22,6 +22,9 @@ ENV PATH=$PATH:/home/frappe/.local/bin
 RUN bench --version
 RUN yarn config set registry https://registry.npmjs.org \
  && yarn config set network-timeout 600000
-RUN bench init frappe-bench --frappe-branch version-15 --skip-assets
+RUN bench init frappe-bench --frappe-branch version-15 --skip-assets && \
+    cd frappe-bench && \
+    bench get-app erpnext --branch version-15 && \
+    bench --site test_site install-app erpnext
 
 ENTRYPOINT ["/entrypoint.sh"]
