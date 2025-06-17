@@ -15,17 +15,20 @@ get_notification_config = (
 
 # ── порядок фикстур: сначала DocType, затем поля/права, затем данные ──
 fixtures = [
+    "service_request.json",
+    "service_object.json",
+    "service_project.json",
     "custom_fields.json",
     "custom_docperm.json",
     "workflow_service_request.json",
     "portal_menu_item.json",
-    "notification.json",
     "role.json",
+    "notification.json",
     "users.json",
     "customer.json",
 ]
 
-try:                              # dev-hooks (если есть)
-    from .dev_hooks import *      # noqa
+try:  # dev-hooks (если есть)
+    from .dev_hooks import *  # noqa
 except ImportError:
     pass
