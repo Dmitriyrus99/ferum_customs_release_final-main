@@ -3,7 +3,7 @@ FROM python:3.10-slim
 RUN apt-get update \
     && apt-get purge -y fakeroot \
     && apt-get autoremove -y \
-    && apt-get install -y git mariadb-client redis-server nodejs npm curl cron \
+    && apt-get install -y git mariadb-client nodejs npm curl cron \
     && npm install -g yarn@1.22.19 \
     && useradd -ms /bin/bash frappe
 RUN pip install --no-cache-dir pytest pytest-cov
