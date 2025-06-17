@@ -1,9 +1,11 @@
 import pytest
 
 pytest.importorskip("frappe")
-import frappe  # noqa: E402
 from types import SimpleNamespace  # noqa: E402
+
+import frappe  # noqa: E402
 from frappe.tests.utils import FrappeTestCase  # noqa: E402
+
 from ferum_customs import api  # noqa: E402
 
 

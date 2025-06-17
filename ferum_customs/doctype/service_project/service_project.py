@@ -8,8 +8,8 @@ from __future__ import annotations
 import datetime  # Для работы с датами и временем
 
 import frappe
-from frappe.model.document import Document
 from frappe import _
+from frappe.model.document import Document
 
 # if TYPE_CHECKING:
 # from .project_object_item import ProjectObjectItem # Для дочерней таблицы

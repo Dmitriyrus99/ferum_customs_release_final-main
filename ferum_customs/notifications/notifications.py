@@ -11,7 +11,7 @@
 from frappe import _  # Для перевода возможных строк в будущем
 
 # Импорт констант для статусов, если они используются в условиях
-from ..constants import STATUS_OTKRYTA, STATUS_V_RABOTE, ROLE_PROEKTNYJ_MENEDZHER
+from ..constants import ROLE_PROEKTNYJ_MENEDZHER, STATUS_OTKRYTA, STATUS_V_RABOTE
 
 
 def get_notification_config() -> dict:

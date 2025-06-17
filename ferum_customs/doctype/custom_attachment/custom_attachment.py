@@ -4,11 +4,12 @@ Python-контроллер для DocType "Custom Attachment".
 """
 from __future__ import annotations
 
+import frappe
+from frappe import _  # Для возможных пользовательских сообщений
+from frappe.model.document import Document
+
 # from typing import TYPE_CHECKING
 
-import frappe
-from frappe.model.document import Document
-from frappe import _  # Для возможных пользовательских сообщений
 
 # if TYPE_CHECKING:
 # pass

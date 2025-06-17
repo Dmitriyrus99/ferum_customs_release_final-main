@@ -4,9 +4,10 @@ Python-контроллер для DocType "Service Object".
 """
 from __future__ import annotations
 
+from frappe.model.document import Document
+
 # from typing import TYPE_CHECKING
 
-from frappe.model.document import Document
 
 # from frappe import _ # Если будут пользовательские сообщения
 

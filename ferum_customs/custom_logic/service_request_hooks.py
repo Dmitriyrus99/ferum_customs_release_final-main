@@ -20,8 +20,9 @@ from ..constants import (
 )
 
 if TYPE_CHECKING:
-    from ..doctype.service_request.service_request import ServiceRequest
     from frappe.model.document import Document as FrappeDocument
+
+    from ..doctype.service_request.service_request import ServiceRequest
 
 
 # --------------------------------------------------------------------------- #
