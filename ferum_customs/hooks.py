@@ -29,6 +29,12 @@ fixtures = [
     "customer.json",
 ]
 
+
+def scheduler_events() -> dict:
+    """Return scheduler events configuration for Frappe."""
+    return {}
+
+
 try:  # dev-hooks (если есть)
     from .dev_hooks import *  # noqa
 except ImportError:
