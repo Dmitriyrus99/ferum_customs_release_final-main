@@ -20,6 +20,7 @@ fixtures = [
     "service_project.json",
     "custom_fields.json",
     "custom_docperm.json",
+    "audit_log.json",
     "workflow_service_request.json",
     "portal_menu_item.json",
     "role.json",
