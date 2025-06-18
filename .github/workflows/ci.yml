@@ -101,7 +101,7 @@ jobs:
 
       # Шаг 2: Сборка и запуск Docker-стека в фоновом режиме
       - name: Build and start Frappe Stack
-        run: DOCKER_BUILDKIT=1 docker compose -f docker-compose.yml up -d --build --progress plain
+        run: DOCKER_BUILDKIT=1 docker compose -f docker-compose.yml up -d --build
 
 
       # --- Tests ----------------------------------------------------------
