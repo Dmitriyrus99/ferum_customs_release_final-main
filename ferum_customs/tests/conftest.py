@@ -24,11 +24,9 @@ def site_host() -> str:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def init_frappe_site():
-    """Initialize and connect to the Frappe site for the test session."""
-    site = os.environ.get("SITE_NAME") or getattr(frappe.local, "site", None)
-    if not site:
-        pytest.skip("No Frappe site available")
+def connect_site():
+    """Connect to the already created Frappe site."""
+    site = os.environ["SITE_NAME"]
     frappe.init(site)
     frappe.connect()
     yield

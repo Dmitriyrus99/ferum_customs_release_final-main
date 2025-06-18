@@ -62,11 +62,8 @@ jobs:
       - name: Install dependencies
         run: pip install --upgrade pre-commit
 
-      # Шаг 5: Запуск хуков pre-commit, пропуская pytest
-      # Переменная окружения SKIP - это стандартный способ pre-commit для пропуска хуков.
-      - name: Run pre-commit hooks (skip pytest)
-        env:
-          SKIP: pytest
+      # Шаг 5: Запуск всех хуков pre-commit, включая pytest
+      - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
 
   # =======================================================
@@ -78,7 +75,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     env:
-      SITE_NAME: ci_site
+      SITE_NAME: test_site
+      ADMIN_PASSWORD: admin
 
     steps:
       # Шаг 1: Клонирование кода
