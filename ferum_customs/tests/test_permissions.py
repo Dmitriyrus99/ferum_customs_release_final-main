@@ -15,12 +15,14 @@ class TestPermissions(FrappeTestCase):
         sr.insert(ignore_permissions=True)
         sr.submit()
 
-        user = frappe.get_doc({
-            "doctype": "User",
-            "email": "sales@example.com",
-            "first_name": "Sales",
-            "roles": [{"role": "Sales User"}]
-        })
+        user = frappe.get_doc(
+            {
+                "doctype": "User",
+                "email": "sales@example.com",
+                "first_name": "Sales",
+                "roles": [{"role": "Sales User"}],
+            }
+        )
         user.insert(ignore_permissions=True)
 
         frappe.set_user(user.name)
