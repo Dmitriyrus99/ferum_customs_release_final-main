@@ -35,7 +35,7 @@ create_site() {
 
 install_app() {
     if ! bench list-apps | grep -q "$APP_NAME"; then
-        bench get-app "$APP_NAME" --source-path "$APP_PATH"
+        bench get-app "$APP_NAME" --source_path "$APP_PATH"
         bench --site "$SITE_NAME" install-app "$APP_NAME"
     fi
 }
