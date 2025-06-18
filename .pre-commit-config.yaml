@@ -22,5 +22,9 @@ repos:
       - id: pytest
         name: pytest
         entry: pytest
-        language: system
+        language: python
         pass_filenames: false
+        additional_dependencies:
+          - pytest>=8
+          - frappe-framework==15.19.0
+          - bench==5.20.0
