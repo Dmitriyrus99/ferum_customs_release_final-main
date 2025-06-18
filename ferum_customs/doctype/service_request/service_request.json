@@ -29,6 +29,13 @@
       "in_list_view": 1
     },
     {
+      "fieldname": "customer_email",
+      "label": "Email клиента",
+      "fieldtype": "Data",
+      "options": "Email",
+      "in_list_view": 1
+    },
+    {
       "fieldname": "status",
       "label": "Статус",
       "fieldtype": "Data",

@@ -131,6 +131,14 @@ def _notify_project_manager(doc: "ServiceRequest") -> None:
             distinct=True,
         )
 
+        customer_email = doc.get("customer_email")
+        if customer_email:
+            recipients.append(customer_email)
+        else:
+            frappe.logger(__name__).warning(
+                f"Service Request '{doc.name}' has no customer_email field set"
+            )
+
         if not recipients:
             frappe.logger(__name__).warning(
                 _("Получатели с ролью '{0}' не найдены для уведомления.").format(
