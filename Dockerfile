@@ -17,10 +17,9 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /bootstrap.sh /bench_setup.sh /entrypoint.sh
 
 USER frappe
+ENV PATH="$HOME/.local/bin:$PATH"
+RUN pip install --no-cache-dir frappe-bench==5.20.0
 WORKDIR /home/frappe
-
-RUN pip install --no-cache-dir --user frappe-bench
-ENV PATH=$PATH:/home/frappe/.local/bin
 RUN bench --version
 RUN yarn config set registry https://registry.npmjs.org \
  && yarn config set network-timeout 600000
@@ -38,5 +37,7 @@ RUN cd frappe-bench && \
         --no-mariadb-socket \
         --install-app erpnext \
         --install-app ferum_customs
+
+WORKDIR /workspace
 
 ENTRYPOINT ["/entrypoint.sh"]
