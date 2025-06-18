@@ -28,4 +28,15 @@ RUN bench init frappe-bench --frappe-branch version-15 --skip-assets && \
     cd frappe-bench && \
     bench get-app erpnext --branch version-15
 
+# Pre-create a Frappe site during the image build so tests can reuse it
+ARG SITE_NAME=test_site
+ARG ADMIN_PASSWORD=admin
+RUN cd frappe-bench && \
+    bench get-app /app/ferum_customs && \
+    bench new-site "$SITE_NAME" \
+        --admin-password "$ADMIN_PASSWORD" \
+        --no-mariadb-socket \
+        --install-app erpnext \
+        --install-app ferum_customs
+
 ENTRYPOINT ["/entrypoint.sh"]

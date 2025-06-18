@@ -30,12 +30,12 @@ services:
       redis:
         condition: service_started
     environment:
-      - SITE_NAME=${SITE_NAME:-test_site}
-      - ADMIN_PASSWORD=admin
-      - DB_ROOT_PASSWORD=root
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_ROOT_USER=root
+      SITE_NAME: ${SITE_NAME:-test_site}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      DB_ROOT_PASSWORD: root
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_ROOT_USER: root
     volumes:
       - sites_volume:/home/frappe/frappe-bench/sites
     networks:
