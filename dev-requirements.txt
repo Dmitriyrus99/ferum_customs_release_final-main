@@ -2,7 +2,8 @@ frappe @ git+https://github.com/frappe/frappe.git@v15.21.0
 erpnext @ git+https://github.com/frappe/erpnext.git@v15.21.0
 black
 ruff
-pytest
+pytest>=8.0
+pytest-cov
 mypy
 pre-commit
 isort==5.12.0
