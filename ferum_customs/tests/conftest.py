@@ -1,10 +1,11 @@
 import os
-import sys
-
-import frappe
-import pytest
 import pathlib
 import subprocess
+import sys
+
+import pytest
+
+frappe = pytest.importorskip("frappe")
 
 # Ensure package root is importable before tests are collected
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -32,31 +33,37 @@ def ensure_test_site(tmp_path_factory):
     sites_dir = bench_path / "sites"
 
     if not (sites_dir / site).exists():
-        subprocess.check_call([
-            "bench",
-            "init",
-            str(bench_path),
-            "--skip-redis-config-generation",
-        ])
-        subprocess.check_call([
-            "bench",
-            "--site",
-            site,
-            "new-site",
-            "--db-type",
-            "sqlite",
-            "--admin-password",
-            "admin",
-            "--db-name",
-            f"{site}.db",
-        ])
-        subprocess.check_call([
-            "bench",
-            "--site",
-            site,
-            "install-app",
-            "ferum_customs",
-        ])
+        subprocess.check_call(
+            [
+                "bench",
+                "init",
+                str(bench_path),
+                "--skip-redis-config-generation",
+            ]
+        )
+        subprocess.check_call(
+            [
+                "bench",
+                "--site",
+                site,
+                "new-site",
+                "--db-type",
+                "sqlite",
+                "--admin-password",
+                "admin",
+                "--db-name",
+                f"{site}.db",
+            ]
+        )
+        subprocess.check_call(
+            [
+                "bench",
+                "--site",
+                site,
+                "install-app",
+                "ferum_customs",
+            ]
+        )
 
     frappe.init(site)
     frappe.connect()
