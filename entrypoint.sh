@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Execute bench setup with provided argument or default to dev
 if [ $# -eq 0 ]; then

@@ -83,9 +83,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Кэш Docker layer'ов для ускорения сборки
+      - name: Restore Docker build cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buildkit
+          key: ${{ runner.os }}-buildkit-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildkit-
+
+      - name: Upgrade Docker Compose (>= 2.10)
+        run: |
+          sudo curl -L https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 \
+          -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker compose version   # вывод версии для контроля
+
       # Шаг 2: Сборка и запуск Docker-стека в фоновом режиме
       - name: Build and start Frappe Stack
-        run: docker compose -f docker-compose.yml up -d --build
+        run: DOCKER_BUILDKIT=1 docker compose -f docker-compose.yml up -d --build --progress plain
 
 
       # --- Tests ----------------------------------------------------------
@@ -140,3 +156,10 @@ jobs:
       - name: Stop Frappe Stack
         if: always() # Выполняется всегда
         run: docker compose down -v
+
+      - name: Save Docker build cache
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/buildkit
+          key: ${{ runner.os }}-buildkit-${{ github.sha }}
