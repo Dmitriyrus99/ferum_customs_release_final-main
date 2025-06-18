@@ -1,3 +1,4 @@
+import os
 from types import SimpleNamespace
 
 import pytest
@@ -17,6 +18,8 @@ class DummyEntry(SimpleNamespace):
 
 
 class TestServiceRequestHooks(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_get_engineers(self, monkeypatch, frappe_site):
         doc = SimpleNamespace(
             assigned_engineers=[

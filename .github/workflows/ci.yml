@@ -77,6 +77,8 @@ jobs:
     needs: lint
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    env:
+      SITE_NAME: ci_site
 
     steps:
       # Шаг 1: Клонирование кода
@@ -136,11 +138,11 @@ jobs:
           done
 
       # Шаг 4: Запуск тестов pytest внутри работающего контейнера
-      # Имя сервиса 'frappe' и имя сайта 'test_site' взяты из docker-compose.yml
+      # Имя сервиса 'frappe' и имя сайта берутся из docker-compose.yml
       - name: Run tests inside container
         run: >
           docker compose exec -T frappe
-          bench --site test_site run-tests --app ferum_customs
+          bench --site "$SITE_NAME" run-tests --app ferum_customs
 
       # Шаг 5 (опционально): Загрузка артефактов (отчетов о тестировании)
       # Если ваши тесты генерируют отчеты (например, в формате JUnit),

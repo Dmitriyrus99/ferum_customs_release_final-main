@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 pytest.importorskip("frappe")
@@ -22,6 +24,8 @@ class DummyDoc(SimpleNamespace):
 
 
 class TestCreateInvoice(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_create_invoice_success(self, monkeypatch, frappe_site):
         sr = DummyDoc(
             name="SR-1",

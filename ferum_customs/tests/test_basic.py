@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 try:
@@ -8,5 +10,7 @@ except Exception:  # pragma: no cover - frappe not installed
 
 
 class TestTestBasic(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_basic(self, frappe_site):
         self.assertTrue(True)

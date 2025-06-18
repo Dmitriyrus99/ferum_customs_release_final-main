@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 try:
@@ -8,6 +10,8 @@ except Exception:  # pragma: no cover
 
 
 class TestPermissions(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_sales_user_cannot_cancel(self, frappe_site):
         sr = frappe.new_doc("Service Request")
         sr.subject = "Perm Test"
