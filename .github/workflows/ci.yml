@@ -60,7 +60,7 @@ jobs:
 
       # Шаг 4: Установка зависимостей для проверок
       - name: Install dependencies
-        run: pip install --upgrade pre-commit
+        run: pip install -r dev-requirements.txt
 
       # Шаг 5: Запуск всех хуков pre-commit, включая pytest
       - name: Run pre-commit hooks
