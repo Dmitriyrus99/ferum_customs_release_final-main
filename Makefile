@@ -2,7 +2,7 @@ APP=ferum_customs
 SITE?=dev.localhost
 BENCH?=frappe-bench
 
-.PHONY: setup start update fixtures test
+.PHONY: setup start update fixtures test-site test
 
 setup:
 	bench get-app $(APP) --source-path . || true
@@ -20,6 +20,8 @@ update:
 fixtures:
 	bench --site $(SITE) export-fixtures
 
-test:
-        bench --site $(SITE) run-tests --app $(APP) \
-        --junit-xml=reports/make-results.xml
+test-site:
+	./scripts/setup_test_site.sh
+
+test: test-site
+	pytest -q

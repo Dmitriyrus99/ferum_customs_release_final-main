@@ -13,3 +13,4 @@ reports/
 node_modules/
 sites/
 frappe-bench/
+.bench/
