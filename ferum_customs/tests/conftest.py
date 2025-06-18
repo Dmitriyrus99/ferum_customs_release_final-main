@@ -12,15 +12,20 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 SITE = os.environ.get("SITE_NAME", "test_site")
-BENCH_DIR = pathlib.Path(".bench")
+SITES_PATH = pathlib.Path(os.environ.get("SITES_PATH", ".bench/sites"))
 
 
 @pytest.fixture(scope="session", autouse=True)
 def connect_frappe():
-    site_path = BENCH_DIR / "sites" / SITE
+    # если Frappe уже подключён сайтом из FrappeTestCase, ничего не делаем
+    if getattr(frappe.local, "site", None) == SITE:
+        return
+
+    site_path = SITES_PATH / SITE
     if not site_path.exists():
-        pytest.skip(f"Site {SITE} not found, run setup_test_site.sh")
-    frappe.init(site=SITE, sites_path=str(BENCH_DIR / "sites"))
+        pytest.skip(f"Site {site_path} not found – run setup_test_site.sh")
+
+    frappe.init(site=SITE, sites_path=str(SITES_PATH))
     frappe.connect()
     yield
     frappe.destroy()

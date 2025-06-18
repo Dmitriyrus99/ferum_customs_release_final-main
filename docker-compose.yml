@@ -31,6 +31,7 @@ services:
         condition: service_started
     environment:
       SITE_NAME: ${SITE_NAME:-test_site}
+      SITES_PATH: .bench/sites
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
       DB_ROOT_PASSWORD: root
       DB_HOST: mariadb
