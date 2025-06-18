@@ -1,3 +1,4 @@
+import os
 from types import SimpleNamespace
 
 import pytest
@@ -18,6 +19,8 @@ class DummyDoc(SimpleNamespace):
 
 
 class TestServiceReportHooks(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_validate_ok(self, monkeypatch, frappe_site):
         doc = DummyDoc(service_request="REQ-1", name="SR-1")
         monkeypatch.setattr(frappe.db, "exists", lambda *a, **k: True)

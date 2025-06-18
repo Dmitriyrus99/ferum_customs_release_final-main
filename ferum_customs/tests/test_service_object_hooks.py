@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 try:
@@ -19,6 +21,8 @@ class DummyDoc:
 
 
 class TestServiceObjectHooks(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_validate_unique(self, monkeypatch, frappe_site):
         doc = DummyDoc("SN-1")
         monkeypatch.setattr(frappe.db, "exists", lambda *args, **kwargs: None)

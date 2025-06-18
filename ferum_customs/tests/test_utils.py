@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 pytest.importorskip("frappe")
@@ -15,6 +17,8 @@ class DummyEntry(SimpleNamespace):
 
 
 class TestUtils(FrappeTestCase):
+    TEST_SITE = os.environ.get("SITE_NAME", getattr(frappe.local, "site", None))
+
     def test_get_engineers_for_object(self, monkeypatch, frappe_site):
         doc = SimpleNamespace(
             assigned_engineers=[
