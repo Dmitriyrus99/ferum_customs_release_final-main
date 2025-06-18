@@ -11,3 +11,5 @@ requests==2.31.0
 click==8.1.7
 qrcode
 zxcvbn-python
+frappe-framework==15.19.0
+bench==5.20.0
