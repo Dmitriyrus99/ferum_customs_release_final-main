@@ -6,6 +6,8 @@ RUN apt-get update \
     && apt-get install -y git mariadb-client nodejs npm curl cron \
     && npm install -g yarn@1.22.19 \
     && useradd -ms /bin/bash frappe
+# Install Redis before bench init
+RUN apt-get update && apt-get install -y redis-server=5:7.0.*
 RUN pip install --no-cache-dir pytest pytest-cov
 
 COPY bench_setup.sh /bench_setup.sh
