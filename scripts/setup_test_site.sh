@@ -25,4 +25,12 @@ fi
 bench --site "$SITE_NAME" install-app ferum_customs
 # bench --site "$SITE_NAME" install-app erpnext   # если нужно
 
+# Создать символическую ссылку ../test_site → .bench/sites/test_site
+SITE_PATH="sites/$SITE_NAME"
+BENCH_DIR=".bench"
+if [ ! -e "../test_site" ]; then
+  ln -s "$SITE_PATH" ../test_site
+fi
+echo "✅ Symlink ../test_site → $BENCH_DIR/$SITE_PATH готов"
+
 echo "✅ Site $SITE_NAME ready"
